@@ -3,26 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vạch Tuyến Thu Gom Rác-CNMT HUNRE</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <title>Quận Hà Nội - Bản đồ thu gom chất thải</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        body, html, #map {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 5;
+        }
+    </style>
 </head>
 <body>
-    <h1>Vạch Tuyến Thu Gom Rác-CNMT HUNRE</h1>
-    <div id="input-section">
-        <label for="district">Nhập tên quận Hà Nội:</label>
-        <input type="text" id="district" placeholder="Ví dụ: Ba Đình">
-        <button id="get-boundary">Lấy địa phận</button>
-        <div id="points-section">
-            <label for="point">Nhập điểm thu gom (tọa độ):</label>
-            <input type="text" id="point" placeholder="Ví dụ: 21.0333,105.8142">
-            <button id="add-point">Thêm điểm</button>
-            <button id="generate-route">Tạo tuyến đường</button>
-        </div>
+
+    <div class="controls">
+        <label for="district">Chọn quận: </label>
+        <input type="text" id="district" placeholder="Nhập tên quận" />
+        <button onclick="getDistrictData()">Hiển thị bản đồ</button>
     </div>
+
     <div id="map"></div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
-    <script src="script.js"></script>
+
+    <script>
+        // Khởi tạo bản đồ với Mapbox
+        mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'; // Thay thế bằng Mapbox Access Token của bạn
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [105.8542, 21.0285], // Tọa độ trung tâm Hà Nội
+            zoom: 12
+        });
+
+        // Hàm lấy dữ liệu quận và vẽ đường bao quanh quận
+        function getDistrictData() {
+            var districtName = document.getElementById('district').value;
+            if (districtName === 'Ba Đình') { // Ví dụ chỉ hỗ trợ quận Ba Đình
+                // Dữ liệu geojson của quận Ba Đình
+                var geojson = {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [
+                                        [105.8402, 21.0330],
+                                        [105.8542, 21.0285],
+                                        [105.8600, 21.0300],
+                                        [105.8450, 21.0360],
+                                        [105.8402, 21.0330]
+                                    ]
+                                ]
+                            },
+                            "properties": {
+                                "name": "Ba Đình"
+                            }
+                        }
+                    ]
+                };
+
+                // Vẽ quận Ba Đình
+                map.on('load', function() {
+                    map.addSource('district', {
+                        type: 'geojson',
+                        data: geojson
+                    });
+
+                    map.addLayer({
+                        id: 'district-layer',
+                        type: 'fill',
+                        source: 'district',
+                        layout: {},
+                        paint: {
+                            'fill-color': '#FF0000',
+                            'fill-opacity': 0.4
+                        }
+                    });
+                    
+                    // Đặt lại vị trí bản đồ để xem quận
+                    map.fitBounds(geojson.features[0].geometry.coordinates[0], { padding: 20 });
+                });
+            }
+        }
+
+        // Hàm nhập các điểm thu gom
+        function addCollectionPoints(lngLat) {
+            new mapboxgl.Marker()
+                .setLngLat(lngLat)
+                .addTo(map);
+        }
+
+        // Lắng nghe sự kiện nhấp chuột để thêm điểm thu gom
+        map.on('click', function(e) {
+            var lngLat = e.lngLat;
+            addCollectionPoints(lngLat);
+
+            // Hiển thị tọa độ của điểm thu gom
+            console.log('Điểm thu gom: ', lngLat);
+        });
+    </script>
+
 </body>
 </html>
