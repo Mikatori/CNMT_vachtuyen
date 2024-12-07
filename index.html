@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vạch Tuyến Thu Gom Rác</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+    <h1>Vạch Tuyến Thu Gom Rác</h1>
+    <div id="input-section">
+        <label for="district">Nhập tên quận Hà Nội:</label>
+        <input type="text" id="district" placeholder="Ví dụ: Ba Đình">
+        <button id="get-boundary">Lấy địa phận</button>
+        <div id="points-section">
+            <label for="point">Nhập điểm thu gom (tọa độ):</label>
+            <input type="text" id="point" placeholder="Ví dụ: 21.0333,105.8142">
+            <button id="add-point">Thêm điểm</button>
+            <button id="generate-route">Tạo tuyến đường</button>
+        </div>
+    </div>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
