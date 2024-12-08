@@ -1,69 +1,70 @@
-let map, boundaryLayer, routeControl;
-let points = [];
+let map, drawnDistrict, collectionPoints = [];
+const districtPolygon = {}; // Giả định dữ liệu GeoJSON cho các quận
 
-// Khởi tạo bản đồ
-map = L.map('map').setView([21.0285, 105.8542], 12); // Tọa độ Hà Nội
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
-
-// Lấy địa phận quận từ OpenStreetMap
-document.getElementById('get-boundary').addEventListener('click', async () => {
-    const districtName = document.getElementById('district').value.trim();
-    if (!districtName) {
-        alert('Vui lòng nhập tên quận.');
-        return;
-    }
-
-    const url = `https://nominatim.openstreetmap.org/search?city=Hà Nội&district=${districtName}&format=geojson`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.features.length === 0) {
-            alert('Không tìm thấy quận.');
-            return;
-        }
-
-        const boundary = data.features[0].geometry.coordinates[0].map(coord => [coord[1], coord[0]]);
-        if (boundaryLayer) map.removeLayer(boundaryLayer);
-        boundaryLayer = L.polygon(boundary, { color: 'red' }).addTo(map);
-        map.fitBounds(boundaryLayer.getBounds());
-    } catch (error) {
-        alert('Lỗi khi lấy dữ liệu quận.');
-    }
-});
-
-// Thêm điểm thu gom
-document.getElementById('add-point').addEventListener('click', () => {
-    const pointInput = document.getElementById('point').value.trim();
-    if (!pointInput) {
-        alert('Vui lòng nhập tọa độ điểm.');
-        return;
-    }
-
-    const [lat, lng] = pointInput.split(',').map(Number);
-    if (!lat || !lng) {
-        alert('Tọa độ không hợp lệ.');
-        return;
-    }
-
-    points.push([lat, lng]);
-    L.marker([lat, lng]).addTo(map).bindPopup(`Điểm thu gom: ${lat}, ${lng}`).openPopup();
-});
-
-// Tạo tuyến đường
-document.getElementById('generate-route').addEventListener('click', () => {
-    if (routeControl) map.removeControl(routeControl);
-
-    if (points.length === 0) {
-        alert('Không có điểm thu gom nào.');
-        return;
-    }
-
-    routeControl = L.Routing.control({
-        waypoints: points.map(coord => L.latLng(coord[0], coord[1])),
-        routeWhileDragging: true,
-        show: false
+// Initialize map
+function initMap() {
+    map = L.map('map').setView([21.0285, 105.8542], 12); // Center Hà Nội
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
     }).addTo(map);
+}
+
+// Load district data
+async function loadDistrictData(districtName) {
+    if (districtPolygon[districtName]) {
+        drawDistrict(districtPolygon[districtName]);
+    } else {
+        alert("Không tìm thấy dữ liệu cho quận này!");
+    }
+}
+
+// Draw district boundary
+function drawDistrict(geoJson) {
+    if (drawnDistrict) map.removeLayer(drawnDistrict);
+    drawnDistrict = L.geoJSON(geoJson, { color: "red" }).addTo(map);
+    map.fitBounds(drawnDistrict.getBounds());
+}
+
+// Add collection points
+function addCollectionPoint(latlng) {
+    const marker = L.marker(latlng).addTo(map).bindPopup("Điểm thu gom").openPopup();
+    collectionPoints.push(marker);
+}
+
+// Generate route
+async function generateRoute() {
+    if (collectionPoints.length < 2) {
+        alert("Cần ít nhất 2 điểm để vạch tuyến đường!");
+        return;
+    }
+
+    const waypoints = collectionPoints.map(marker => L.latLng(marker.getLatLng()));
+    L.Routing.control({
+        waypoints: waypoints,
+        lineOptions: {
+            styles: [{ color: 'blue', weight: 4 }]
+        }
+    }).addTo(map);
+}
+
+// Auto-route
+function autoRoute() {
+    // Logic để vạch tuyến tốt nhất dựa trên GeoJSON
+    alert("Tính năng tự động đang được phát triển!");
+}
+
+// Event listeners
+document.getElementById('load-map').addEventListener('click', () => {
+    const districtName = document.getElementById('district').value;
+    loadDistrictData(districtName);
 });
+
+document.getElementById('add-collection-point').addEventListener('click', () => {
+    map.once('click', (e) => addCollectionPoint(e.latlng));
+});
+
+document.getElementById('generate-route').addEventListener('click', generateRoute);
+document.getElementById('auto-route').addEventListener('click', autoRoute);
+
+// Initialize map on load
+initMap();
