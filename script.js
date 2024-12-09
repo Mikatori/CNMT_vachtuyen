@@ -7,7 +7,7 @@ function initMap() {
         maxZoom: 18,
     }).addTo(map);
 }
-
+initMap();
 // Load district data (temporary solution)
 async function loadDistrictData(districtName) {
     const districts = {
