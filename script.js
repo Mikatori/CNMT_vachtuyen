@@ -1,5 +1,19 @@
 let map, drawnDistrict, collectionPoints = [];
 
+// Dữ liệu điểm thu gom mặc định
+const defaultCollectionPoints = {
+    "Hoàn Kiếm": [
+        [21.0285, 105.8533],
+        [21.0302, 105.8556],
+        [21.0271, 105.8505],
+    ],
+    "Ba Đình": [
+        [21.0333, 105.8143],
+        [21.0345, 105.8180],
+        [21.0312, 105.8112],
+    ]
+};
+
 // Initialize map
 function initMap() {
     map = L.map('map').setView([21.0285, 105.8542], 12); // Center Hà Nội
@@ -7,7 +21,7 @@ function initMap() {
         maxZoom: 18,
     }).addTo(map);
 }
-initMap();
+
 // Load district data (temporary solution)
 async function loadDistrictData(districtName) {
     const districts = {
@@ -56,11 +70,24 @@ function addCollectionPoint(latlng) {
 
 // Generate route
 function generateRoute() {
-    if (collectionPoints.length < 2) {
-        alert("Cần ít nhất 2 điểm để vạch tuyến đường!");
-        return;
+    if (collectionPoints.length === 0) {
+        const districtName = document.getElementById('district').value;
+
+        if (defaultCollectionPoints[districtName]) {
+            alert("Không có điểm thu gom được thêm, sử dụng các điểm mặc định!");
+
+            // Thêm các điểm thu gom mặc định vào bản đồ
+            defaultCollectionPoints[districtName].forEach(coords => {
+                const marker = L.marker(coords).addTo(map).bindPopup("Điểm thu gom mặc định").openPopup();
+                collectionPoints.push(marker);
+            });
+        } else {
+            alert("Không tìm thấy các điểm thu gom mặc định cho quận này!");
+            return;
+        }
     }
 
+    // Vạch tuyến đường giữa các điểm thu gom
     const waypoints = collectionPoints.map(marker => L.latLng(marker.getLatLng()));
     L.Routing.control({
         waypoints: waypoints,
@@ -73,7 +100,20 @@ function generateRoute() {
 // Event listeners
 document.getElementById('load-map').addEventListener('click', () => {
     const districtName = document.getElementById('district').value;
+
+    // Xóa các điểm thu gom cũ
+    collectionPoints.forEach(marker => map.removeLayer(marker));
+    collectionPoints = [];
+
     loadDistrictData(districtName);
+
+    // Tự động thêm các điểm thu gom mặc định (nếu cần)
+    if (defaultCollectionPoints[districtName]) {
+        defaultCollectionPoints[districtName].forEach(coords => {
+            const marker = L.marker(coords).addTo(map).bindPopup("Điểm thu gom mặc định").openPopup();
+            collectionPoints.push(marker);
+        });
+    }
 });
 
 document.getElementById('add-collection-point').addEventListener('click', () => {
