@@ -2,7 +2,7 @@ let map, drawnDistrict;
 
 // Khởi tạo bản đồ
 function initMap() {
-    map = L.map('map').setView([21.0285, 105.8542], 12); // Tâm bản đồ Hà Nội
+    map = L.map('map').setView([21.0285, 105.8542], 12); // Tâm bản đồ là Hà Nội
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
     }).addTo(map);
@@ -14,7 +14,7 @@ async function loadDistrictData(districtName) {
         const response = await fetch('hanoi_districts.json'); // Đường dẫn đến file JSON
         const data = await response.json();
 
-        // Tìm dữ liệu quận Hà Nội
+        // Tìm dữ liệu Hà Nội
         const hanoi = data.find(city => city.FullName === "Thành phố Hà Nội");
         if (!hanoi) {
             alert("Không tìm thấy dữ liệu Hà Nội!");
@@ -28,6 +28,7 @@ async function loadDistrictData(districtName) {
             return;
         }
 
+        // Vẽ ranh giới quận
         drawDistrict(district);
     } catch (error) {
         alert("Không thể tải dữ liệu quận!");
@@ -39,10 +40,10 @@ async function loadDistrictData(districtName) {
 function drawDistrict(district) {
     if (drawnDistrict) map.removeLayer(drawnDistrict);
 
-    // Dữ liệu GeoJSON để vẽ ranh giới (tạm thời giả lập dữ liệu ranh giới từ tọa độ các phường)
+    // Dữ liệu GeoJSON để vẽ ranh giới
     const coordinates = district.Ward.map(ward => [
-        parseFloat(ward.Code) / 10000, // Tạo dữ liệu tọa độ giả lập
-        parseFloat(ward.Code) / 10000
+        parseFloat(ward.Code) / 100000, // Dữ liệu toạ độ giả lập từ mã phường
+        parseFloat(ward.Code) / 100000
     ]);
 
     const geoJson = {
