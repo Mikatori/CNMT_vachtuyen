@@ -11,7 +11,7 @@ function initMap() {
 // Tải dữ liệu từ file JSON và hiển thị quận
 async function loadDistrictData(districtName) {
     try {
-        const response = await fetch('./subfolder/hanoi_districts.json'); // Đường dẫn đến file JSON
+        const response = await fetch('hanoi_districts.json'); // Đường dẫn đến file JSON
         const data = await response.json();
 
         // Tìm dữ liệu Hà Nội
