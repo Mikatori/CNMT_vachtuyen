@@ -11,7 +11,12 @@
     <h1>Quản lý rác thải Hà Nội</h1>
     <div id="input-section">
         <label for="district">Nhập tên Quận:</label>
-        <input type="text" id="district" placeholder="Ví dụ: Hoàn Kiếm" />
+        <select id="district">
+            <option value="Hoàn Kiếm">Hoàn Kiếm</option>
+            <option value="Ba Đình">Ba Đình</option>
+            <option value="Đống Đa">Đống Đa</option>
+            <!-- Thêm các quận khác -->
+        </select>
         <button id="load-map">Tải bản đồ</button>
     </div>
     <div id="map"></div>
@@ -19,7 +24,6 @@
         <h2>Quản lý điểm thu gom</h2>
         <button id="add-collection-point">Thêm điểm thu gom</button>
         <button id="generate-route">Vạch tuyến đường</button>
-        <button id="auto-route">Tuyến đường tự động</button>
     </div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
