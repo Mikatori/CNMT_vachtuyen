@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Hiển thị điểm thu gom trên bản đồ (dấu chấm xanh)
                 L.circleMarker(point, {
-                    color: 'blue',
-                    radius: 6,
+                    color: 'black',
+                    radius: 30,
                 }).addTo(map).bindPopup(`Điểm thu gom: ${lat}, ${lng}`).openPopup();
 
                 const continueAdding = confirm('Bạn có muốn nhập thêm điểm không?');
