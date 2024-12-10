@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
         maxZoom: 18,
     }).addTo(map);
 
+    let collectionPoints = []; // Danh sách các điểm thu gom
+
     // Tải dữ liệu ranh giới quận Hoàn Kiếm
     const overpassApiUrl = 'https://lz4.overpass-api.de/api/interpreter';
     const query = `
@@ -20,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
         .then(response => response.json())
         .then(data => {
-            const geoJson = osmtogeojson(data); // Chuyển đổi sang GeoJSON
+            const geoJson = osmtogeojson(data);
             L.geoJSON(geoJson, {
                 style: {
                     color: 'red',
@@ -33,8 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error fetching Overpass API data:', error);
             alert('Không thể tải dữ liệu. Vui lòng thử lại sau!');
         });
-});
-
 
     // Nhập tọa độ điểm thu gom
     document.getElementById('addPoints').addEventListener('click', function () {
@@ -44,13 +44,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (lat && lng) {
                 const point = [parseFloat(lat), parseFloat(lng)];
                 collectionPoints.push(point);
-                L.marker(point).addTo(map).bindPopup(`Điểm thu gom: ${lat}, ${lng}`).openPopup();
+
+                // Hiển thị điểm thu gom trên bản đồ (dấu chấm xanh)
+                L.circleMarker(point, {
+                    color: 'blue',
+                    radius: 6,
+                }).addTo(map).bindPopup(`Điểm thu gom: ${lat}, ${lng}`).openPopup();
 
                 const continueAdding = confirm('Bạn có muốn nhập thêm điểm không?');
                 if (continueAdding) {
                     addPoint();
                 } else {
-                    drawRoute(collectionPoints);
+                    drawRoute(collectionPoints); // Vẽ tuyến đường sau khi hoàn tất nhập
                 }
             }
         };
