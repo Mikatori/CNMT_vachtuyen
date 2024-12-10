@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Hiển thị điểm thu gom trên bản đồ (dấu chấm xanh)
                 L.circleMarker(point, {
-                    color: 'black',
-                    radius: 30,
+                    color: 'blue',
+                    radius: 20,
                 }).addTo(map).bindPopup(`Điểm thu gom: ${lat}, ${lng}`).openPopup();
 
                 const continueAdding = confirm('Bạn có muốn nhập thêm điểm không?');
@@ -76,7 +76,27 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('autoRoute').addEventListener('click', function () {
         const numPoints = prompt('Nhập số lượng điểm thu gom:');
         if (numPoints && parseInt(numPoints) > 0) {
-            fetch(`https://router.project-osrm.org/route/v1/driving/105.84881,21.03065;105.85381,21.03365?overview=full&geometries=geojson`)
+            // Tạo danh sách điểm giả định
+            const mockPoints = [];
+            const centerLat = 21.03065;
+            const centerLng = 105.84881;
+
+            for (let i = 0; i < parseInt(numPoints); i++) {
+                const offsetLat = Math.random() * 0.01 - 0.005;
+                const offsetLng = Math.random() * 0.01 - 0.005;
+                const point = [centerLat + offsetLat, centerLng + offsetLng];
+                mockPoints.push(point);
+
+                // Hiển thị điểm thu gom tự động trên bản đồ (dấu chấm xanh)
+                L.circleMarker(point, {
+                    color: 'blue',
+                    radius: 20,
+                }).addTo(map).bindPopup(`Điểm tự động: ${point[0].toFixed(5)}, ${point[1].toFixed(5)}`);
+            }
+
+            // Sử dụng OSRM API để vạch tuyến
+            const coordinates = mockPoints.map(pt => pt.reverse().join(',')).join(';'); // Định dạng cho OSRM
+            fetch(`https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`)
                 .then(response => response.json())
                 .then(data => {
                     const route = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
