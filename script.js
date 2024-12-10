@@ -1,69 +1,74 @@
-let map, drawnDistrict;
+document.getElementById('districtForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-// Khởi tạo bản đồ
-function initMap() {
-    map = L.map('map').setView([21.0285, 105.8542], 12); // Tâm bản đồ là Hà Nội
+    const districtName = document.getElementById('district').value.trim();
+    if (!districtName) {
+        alert('Vui lòng nhập tên quận!');
+        return;
+    }
+
+    const overpassApiUrl = 'https://overpass-api.de/api/interpreter';
+    const query = `
+        [out:json];
+        area["name"="Hà Nội"]["boundary"="administrative"]->.hanoi;
+        relation["boundary"="administrative"]["name"="${districtName}"](area.hanoi);
+        out body;
+        >;
+        out skel qt;
+    `;
+
+    try {
+        // Gửi yêu cầu đến Overpass API
+        const response = await fetch(overpassApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `data=${encodeURIComponent(query)}`
+        });
+
+        if (!response.ok) {
+            throw new Error('Không thể tải dữ liệu từ Overpass API.');
+        }
+
+        const data = await response.json();
+
+        // Xử lý dữ liệu GeoJSON
+        const geoJson = osmtogeojson(data);
+
+        // Vẽ bản đồ
+        displayMap(geoJson, districtName);
+    } catch (error) {
+        console.error(error);
+        alert('Đã xảy ra lỗi khi tải dữ liệu.');
+    }
+});
+
+function displayMap(geoJson, districtName) {
+    const mapContainer = document.getElementById('map');
+
+    // Xóa bản đồ cũ nếu đã tồn tại
+    if (mapContainer._leaflet_id) {
+        mapContainer.innerHTML = '';
+    }
+
+    const map = L.map('map').setView([21.0285, 105.8542], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
     }).addTo(map);
+
+    // Thêm dữ liệu GeoJSON vào bản đồ
+    L.geoJSON(geoJson, {
+        style: {
+            color: 'red',
+            weight: 2,
+            fillOpacity: 0.1,
+        }
+    }).addTo(map);
+
+    alert(`Đã tải dữ liệu của quận ${districtName}!`);
 }
 
-// Tải dữ liệu từ file JSON và hiển thị quận
-async function loadDistrictData(districtName) {
-    try {
-        const response = await fetch('hanoi_districts.json'); // Đường dẫn đến file JSON
-        const data = await response.json();
-
-        // Tìm dữ liệu Hà Nội
-        const hanoi = data.find(city => city.FullName === "Thành phố Hà Nội");
-        if (!hanoi) {
-            alert("Không tìm thấy dữ liệu Hà Nội!");
-            return;
-        }
-
-        // Tìm quận theo tên
-        const district = hanoi.District.find(d => d.FullName.includes(districtName));
-        if (!district) {
-            alert(`Không tìm thấy dữ liệu cho quận ${districtName}!`);
-            return;
-        }
-
-        // Vẽ ranh giới quận
-        drawDistrict(district);
-    } catch (error) {
-        alert("Không thể tải dữ liệu quận!");
-        console.error("Lỗi khi tải dữ liệu:", error);
-    }
+// Thư viện chuyển đổi từ OSM sang GeoJSON
+function osmtogeojson(json) {
+    const osmtogeojson = window.osmtogeojson || require('osmtogeojson');
+    return osmtogeojson(json);
 }
-
-// Vẽ ranh giới quận lên bản đồ
-function drawDistrict(district) {
-    if (drawnDistrict) map.removeLayer(drawnDistrict);
-
-    // Dữ liệu GeoJSON để vẽ ranh giới
-    const coordinates = district.Ward.map(ward => [
-        parseFloat(ward.Code) / 100000, // Dữ liệu toạ độ giả lập từ mã phường
-        parseFloat(ward.Code) / 100000
-    ]);
-
-    const geoJson = {
-        type: "Feature",
-        properties: { name: district.FullName },
-        geometry: {
-            type: "Polygon",
-            coordinates: [coordinates]
-        }
-    };
-
-    drawnDistrict = L.geoJSON(geoJson, { color: "red" }).addTo(map);
-    map.fitBounds(drawnDistrict.getBounds());
-}
-
-// Xử lý sự kiện khi chọn quận
-document.getElementById('load-map').addEventListener('click', () => {
-    const districtName = document.getElementById('district').value;
-    loadDistrictData(districtName);
-});
-
-// Khởi tạo bản đồ khi tải trang
-initMap();
