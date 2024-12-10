@@ -3,29 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý rác thải Hà Nội</title>
+    <title>Quận Hà Nội Map Viewer</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <h1>Quản lý rác thải Hà Nội</h1>
-    <div id="input-section">
-        <label for="district">Nhập tên Quận:</label>
-        <select id="district">
-            <option value="Hoàn Kiếm">Hoàn Kiếm</option>
-            <option value="Ba Đình">Ba Đình</option>
-            <option value="Đống Đa">Đống Đa</option>
-            <!-- Thêm các quận khác -->
-        </select>
-        <button id="load-map">Tải bản đồ</button>
+    <div class="container">
+        <h1>Chọn Quận ở Hà Nội</h1>
+        <form id="districtForm">
+            <label for="district">Nhập tên quận:</label>
+            <input type="text" id="district" placeholder="Ví dụ: Hoàn Kiếm" required>
+            <button type="submit">Tải Dữ Liệu</button>
+        </form>
+        <div id="map"></div>
     </div>
-    <div id="map" style="height: 500px; margin: 10px auto; width: 90%;"></div>
-    <div id="controls">
-        <h2>Quản lý điểm thu gom</h2>
-        <button id="add-collection-point">Thêm điểm thu gom</button>
-        <button id="generate-route">Vạch tuyến đường</button>
-    </div>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
