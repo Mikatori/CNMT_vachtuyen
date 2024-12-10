@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quận Hà Nội Map Viewer</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Quận Hoàn Kiếm Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/osmtogeojson"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Chọn Quận ở Hà Nội</h1>
-        <form id="districtForm">
-            <label for="district">Nhập tên quận:</label>
-            <input type="text" id="district" placeholder="Ví dụ: Hoàn Kiếm" required>
-            <button type="submit">Tải Dữ Liệu</button>
-        </form>
-        <div id="map"></div>
+    <h1>Bản đồ Quận Hoàn Kiếm</h1>
+    <div id="map" style="height: 600px; width: 100%;"></div>
+    <div>
+        <button id="addPoints">Nhập tọa độ điểm thu gom</button>
+        <button id="autoRoute">Vạch tuyến tự động</button>
     </div>
     <script src="script.js"></script>
 </body>
