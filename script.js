@@ -7,11 +7,11 @@ document.getElementById('districtForm').addEventListener('submit', async functio
         return;
     }
 
-    const overpassApiUrl = 'https://overpass-api.de/api/interpreter';
+    const overpassApiUrl = 'https://lz4.overpass-api.de/api/interpreter';
     const query = `
         [out:json];
         area["name"="Hà Nội"]["boundary"="administrative"]->.hanoi;
-        relation["boundary"="administrative"]["name"="${districtName}"](area.hanoi);
+        relation["name"="${districtName}"]["boundary"="administrative"](area.hanoi);
         out body;
         >;
         out skel qt;
@@ -38,7 +38,7 @@ document.getElementById('districtForm').addEventListener('submit', async functio
         displayMap(geoJson, districtName);
     } catch (error) {
         console.error(error);
-        alert('Đã xảy ra lỗi khi tải dữ liệu.');
+        alert('Đã xảy ra lỗi khi tải dữ liệu. Kiểm tra lại kết nối hoặc tên quận.');
     }
 });
 
@@ -65,10 +65,4 @@ function displayMap(geoJson, districtName) {
     }).addTo(map);
 
     alert(`Đã tải dữ liệu của quận ${districtName}!`);
-}
-
-// Thư viện chuyển đổi từ OSM sang GeoJSON
-function osmtogeojson(json) {
-    const osmtogeojson = window.osmtogeojson || require('osmtogeojson');
-    return osmtogeojson(json);
 }
